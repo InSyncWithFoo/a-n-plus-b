@@ -27,15 +27,6 @@ Most inputs are automatically generated using Hypothesis.
 On the other hand, there are also concrete test cases.
 
 
-## Type hinting
-
-The code must pass mypy, Pyright and PyCharm type checking.
-As stated in _[Code style]_, use comments as necessary.
-For test files, test cases and "helper" functions may or
-may not be type hinted. Regardless, good type hints
-are always strongly and explicitly recommended.
-
-
   [1]: ./CODE_STYLE.md#for-python
   [2]: ./src/a_n_plus_b/__init__.py
   [3]: ./src/a_n_plus_b/_grammar.py
