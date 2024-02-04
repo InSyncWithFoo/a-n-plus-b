@@ -23,7 +23,7 @@ def _make_complex(example: tuple[int | float, int | float]) -> complex:
 	return complex(*example)
 
 
-def _text_starts_with_sign(example: tuple[str, Any]) -> bool:
+def _starts_with_sign(example: tuple[str, Any]) -> bool:
 	text, _ = example
 	
 	return text[0] in ('+', '-')
@@ -38,12 +38,11 @@ def _casing_scrambled(text: str) -> SearchStrategy[str]:
 	return tuples(*substrategies).map(''.join)
 
 
-def _variation_fragments(text: str) -> SearchStrategy[tuple[str, str, str]]:
-	return tuples(
-		whitespace_sequences_or_empty(),
-		_casing_scrambled(text),
-		whitespace_sequences_or_empty()
-	)
+@composite
+def _variations(draw: DrawFn, text: str) -> str:
+	scrambled_text = draw(_casing_scrambled(text))
+	
+	return draw(with_surrounding_whitespace(scrambled_text))
 
 
 def _tupled_with(value: _T) -> Callable[[_E], tuple[_E, _T]]:
@@ -73,14 +72,6 @@ def with_surrounding_whitespace(text: str) -> SearchStrategy[str]:
 		.map(join)
 
 
-def _odd_variations() -> SearchStrategy[str]:
-	return _variation_fragments('odd').map(''.join)
-
-
-def _even_variations() -> SearchStrategy[str]:
-	return _variation_fragments('even').map(''.join)
-
-
 def _non_integral_floats() -> SearchStrategy[float]:
 	return floats().filter(lambda example: not example.is_integer())
 
@@ -97,11 +88,23 @@ def _digits() -> SearchStrategy[int]:
 	return integers(min_value = 0, max_value = 9)
 
 
-def _steps() -> SearchStrategy[str]:
-	return tuples(_signs(), lists(_digits(), max_size = 10).map(join)).map(join)
+@composite
+def _integers_with_potentially_superfluous_sign(draw: DrawFn) -> str:
+	sign = draw(_signs())
+	digits = draw(lists(_digits(), min_size = 1, max_size = 10).map(join))
+	
+	return draw(with_surrounding_whitespace(sign + digits))
 
 
-def _offsets() -> SearchStrategy[str]:
+@composite
+def _a_values(draw: DrawFn) -> str:
+	sign = draw(_signs())
+	digits = draw(lists(_digits(), max_size = 10).map(join))
+	
+	return sign + digits
+
+
+def _b_values() -> SearchStrategy[str]:
 	return lists(_digits(), min_size = 1, max_size = 10).map(join)
 
 
@@ -110,47 +113,69 @@ class ParseANPlusBTestCases:
 	@staticmethod
 	@composite
 	def valid(draw: DrawFn) -> tuple[str, tuple[int, int]]:
-		step = draw(_steps())
-		operator = draw(_signs())
+		a = draw(_a_values())
 		n = draw(sampled_from(['n', 'N']))
+		operator = draw(_signs())
 		
-		if not step:
-			a = 0
-		elif step == '+':
-			a = 1
-		elif step == '-':
-			a = -1
+		if not a:
+			step = 0
+		elif a == '+':
+			step = 1
+		elif a == '-':
+			step = -1
 		else:
-			a = int(step)
+			step = int(a)
 		
 		if operator:
-			offset = draw(_offsets())
-			b = int(f'{operator}{offset}')
+			b = draw(_b_values())
+			offset = int(f'{operator}{b}')
 		else:
-			offset = ''
-			b = 0
+			b = ''
+			offset = 0
 		
 		operator = draw(with_surrounding_whitespace(operator))
-		text = draw(with_surrounding_whitespace(f'{step}{n}{operator}{offset}'))
+		text = draw(with_surrounding_whitespace(f'{a}{n}{operator}{b}'))
 		
-		return text, (a, b)
+		return text, (step, offset)
 	
 	@staticmethod
 	@composite
 	def whitespace_after_a_sign(draw: DrawFn) -> str:
-		valid_cases_starting_with_sign = ParseANPlusBTestCases.valid() \
-			.filter(_text_starts_with_sign)
-		valid_case = draw(valid_cases_starting_with_sign)[0]
+		valid_cases = ParseANPlusBTestCases.valid().filter(_starts_with_sign)
+		valid_input = draw(valid_cases)[0]
 		
+		a_sign, rest = valid_input[0], valid_input[1:]
 		invalid_whitespace = draw(_whitespace_sequences())
 		
-		return f'{valid_case[0]}{invalid_whitespace}{valid_case[1:]}'
+		return f'{a_sign}{invalid_whitespace}{rest}'
+	
+	@staticmethod
+	@composite
+	def missing_b(draw: DrawFn) -> str:
+		a = draw(_a_values())
+		n = draw(sampled_from(['n', 'N']))
+		operator = draw(_operators())
+		
+		operator = draw(with_surrounding_whitespace(operator))
+		
+		return draw(with_surrounding_whitespace(f'{a}{n}{operator}'))
+	
+	@staticmethod
+	@composite
+	def missing_operator(draw: DrawFn) -> str:
+		a = draw(_a_values())
+		n = draw(sampled_from(['n', 'N']))
+		b = draw(_b_values())
+		
+		b = draw(with_surrounding_whitespace(b))
+		
+		return draw(with_surrounding_whitespace(f'{a}{n}{b}'))
 
 
 @given(
 	one_of([
-		_odd_variations().map(_tupled_with((2, 1))),
-		_even_variations().map(_tupled_with((2, 0)))
+		_variations('odd').map(_tupled_with((2, 1))),
+		_variations('even').map(_tupled_with((2, 0)))
 	])
 )
 def test_parse_odd_even(text_and_expected):
@@ -160,11 +185,7 @@ def test_parse_odd_even(text_and_expected):
 	assert (instance.step, instance.offset) == expected
 
 
-@given(
-	tuples(_signs(), lists(_digits(), min_size = 1, max_size = 10).map(join)) \
-		.map(join) \
-		.flatmap(with_surrounding_whitespace)
-)
+@given(_integers_with_potentially_superfluous_sign())
 def test_parse_integer(text):
 	expected = int(text)
 	
@@ -227,12 +248,11 @@ def test_parse_a_n_plus_b(text_and_expected):
 
 @given(
 	one_of([
-		ParseANPlusBTestCases.whitespace_after_a_sign()
+		ParseANPlusBTestCases.whitespace_after_a_sign(),
+		ParseANPlusBTestCases.missing_b(),
+		ParseANPlusBTestCases.missing_operator()
 	])
 )
-@examples([
-	'+ 3'
-])
 def test_parse_invalid(text):
 	with pytest.raises(InputIsNotParsable):
 		ANPlusB.parse(text)

@@ -6,7 +6,7 @@ import pytest
 from _pytest.mark import ParameterSet
 from hypothesis import assume, given
 from hypothesis.strategies import (
-	booleans, from_type, integers, just,
+	booleans, composite, DrawFn, from_type, integers, just,
 	one_of, sampled_from, SearchStrategy, tuples
 )
 
@@ -15,7 +15,7 @@ from . import a_n_plus_b_instances, examples
 
 
 _Order = Literal['ascending', 'descending', 'default']
-_IndicesTestCase = tuple[ANPlusB, tuple[int, bool, _Order], Iterable[int]]
+_TestCase = tuple[ANPlusB, tuple[int, bool, _Order], Iterable[int]]
 
 
 def _ascending(values: Iterable[int]) -> Iterable[int]:
@@ -34,8 +34,8 @@ def _sign(value: int, /) -> Literal['negative', 'positive', 'zero']:
 	return 'negative' if value < 0 else 'positive' if value > 0 else 'zero'
 
 
-def _describe(case: _IndicesTestCase) -> str:
-	instance, (population, from_last, order), _ = case
+def _describe(test_case: _TestCase) -> str:
+	instance, (population, from_last, order), _ = test_case
 	step, offset = instance.step, instance.offset
 	
 	descriptions = [
@@ -65,56 +65,54 @@ def _orders() -> SearchStrategy[_Order]:
 	)
 
 
-def _empty_indices_test_cases() -> SearchStrategy[_IndicesTestCase]:
+def _non_positive_step_and_offset_test_cases() -> SearchStrategy[_TestCase]:
 	return tuples(
-		a_n_plus_b_instances(integers(max_value = 0), integers(max_value = 0)),
+		a_n_plus_b_instances(
+			integers(max_value = 0),
+			integers(max_value = 0)
+		),
 		tuples(integers(min_value = 0), booleans(), _orders()),
 		just(list[int]())
 	)
 
 
-def _zero_step_indices_test_cases() -> SearchStrategy[_IndicesTestCase]:
-	def _tupled_with_expected(
-		example: tuple[ANPlusB, tuple[int, bool, _Order]]
-	) -> _IndicesTestCase:
-		instance, (population, from_last, order) = example
-		b = instance.offset
-		
-		index = population - b + 1 if from_last else b
-		expected = [index] if 1 <= b <= population else []
-		
-		return instance, (population, from_last, order), expected
+@composite
+def _zero_step_test_cases(draw: DrawFn) -> _TestCase:
+	argument_sets = tuples(integers(min_value = 0), booleans(), _orders())
 	
-	return tuples(
-		a_n_plus_b_instances(just(0), integers()),
-		tuples(integers(min_value = 0), booleans(), _orders())
-	) \
-		.map(_tupled_with_expected)
-
-
-def _non_positive_step_zero_offset_indices_test_cases() \
-	-> SearchStrategy[_IndicesTestCase]:
-	def _tupled_with_expected(
-		example: tuple[ANPlusB, tuple[int, bool, _Order]]
-	) -> _IndicesTestCase:
-		# PyCharm wouldn't be able to figure out the types otherwise.
-		instance, arguments = example
-		
-		return instance, arguments, []
+	instance = draw(a_n_plus_b_instances(just(0), integers()))
+	population, from_last, order = draw(argument_sets)
 	
-	return tuples(
-		a_n_plus_b_instances(_human_integers(max_value = -1), just(0)),
-		tuples(_human_integers(min_value = 0), booleans(), _orders())
-	) \
-		.map(_tupled_with_expected)
+	b = instance.offset
+	
+	index = population - b + 1 if from_last else b
+	expected = [index] if 1 <= b <= population else list[int]()
+	
+	return instance, (population, from_last, order), expected
 
 
-def _indices_test_case_group(
+@composite
+def _non_positive_step_zero_offset_test_cases(draw: DrawFn) -> _TestCase:
+	argument_sets = tuples(integers(min_value = 0), booleans(), _orders())
+	
+	instance = draw(a_n_plus_b_instances(integers(max_value = -1), just(0)))
+	arguments = draw(argument_sets)
+	
+	return instance, arguments, list[int]()
+
+
+def _test_case_group(
 	instance: ANPlusB,
 	population: int,
 	base_case_expected: Iterable[int]
 ) -> list[ParameterSet]:
-	def make_case(from_last: bool, order: _Order) -> _IndicesTestCase:
+	test_cases = []
+	from_last_and_order_matrix = product(
+		[False, True],
+		['default', 'ascending', 'descending']
+	)
+	
+	for from_last, order in from_last_and_order_matrix:
 		expected = base_case_expected
 		
 		if from_last:
@@ -125,44 +123,36 @@ def _indices_test_case_group(
 		elif order == 'descending':
 			expected = _descending(expected)
 		
-		return instance, (population, from_last, order), expected
-	
-	test_cases = [
-		make_case(from_last, order)
-		for from_last, order in product(
-			[False, True],
-			['default', 'ascending', 'descending']
+		test_case = (instance, (population, from_last, order), expected)
+		test_cases.append(
+			pytest.param(test_case, id = _describe(test_case))
 		)
-	]
 	
-	return [
-		pytest.param(test_case, id = _describe(test_case))
-		for test_case in test_cases
-	]
+	return test_cases
 
 
 @given(
 	one_of([
-		_empty_indices_test_cases(),
-		_zero_step_indices_test_cases(),
-		_non_positive_step_zero_offset_indices_test_cases()
+		_non_positive_step_and_offset_test_cases(),
+		_zero_step_test_cases(),
+		_non_positive_step_zero_offset_test_cases()
 	])
 )
 @examples([
-	*_indices_test_case_group(ANPlusB(3, 0), 100, list(range(3, 101, 3))),
+	*_test_case_group(ANPlusB(3, 0), 100, list(range(3, 101, 3))),
 	
-	*_indices_test_case_group(ANPlusB(-2, 6), 10, [6, 4, 2]),
-	*_indices_test_case_group(ANPlusB(-1, 4), 8, [4, 3, 2, 1]),
-	*_indices_test_case_group(ANPlusB(-3, 8), 18, [8, 5, 2]),
+	*_test_case_group(ANPlusB(-2, 6), 10, [6, 4, 2]),
+	*_test_case_group(ANPlusB(-1, 4), 8, [4, 3, 2, 1]),
+	*_test_case_group(ANPlusB(-3, 8), 18, [8, 5, 2]),
 	
-	*_indices_test_case_group(ANPlusB(4, -5), 20, [3, 7, 11, 15, 19]),
-	*_indices_test_case_group(ANPlusB(5, -2), 12, [3, 8]),
+	*_test_case_group(ANPlusB(4, -5), 20, [3, 7, 11, 15, 19]),
+	*_test_case_group(ANPlusB(5, -2), 12, [3, 8]),
 	
-	*_indices_test_case_group(ANPlusB(2, 1), 15, [1, 3, 5, 7, 9, 11, 13, 15]),
-	*_indices_test_case_group(ANPlusB(3, 1), 10, [1, 4, 7, 10]),
-	*_indices_test_case_group(ANPlusB(1, 4), 11, [4, 5, 6, 7, 8, 9, 10, 11])
+	*_test_case_group(ANPlusB(2, 1), 15, [1, 3, 5, 7, 9, 11, 13, 15]),
+	*_test_case_group(ANPlusB(3, 1), 10, [1, 4, 7, 10]),
+	*_test_case_group(ANPlusB(1, 4), 11, [4, 5, 6, 7, 8, 9, 10, 11])
 ])
-def test_indices(instance_arguments_expected: _IndicesTestCase):
+def test_indices(instance_arguments_expected: _TestCase):
 	instance, arguments, expected = instance_arguments_expected
 	population, from_last, order = arguments
 	

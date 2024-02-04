@@ -3,7 +3,7 @@ from typing import Any, ParamSpec, TypeVar
 
 from _pytest.mark import ParameterSet
 from hypothesis import example
-from hypothesis.strategies import integers, SearchStrategy, tuples
+from hypothesis.strategies import composite, DrawFn, integers, SearchStrategy
 
 from a_n_plus_b import ANPlusB
 
@@ -16,12 +16,6 @@ _Decorator = Callable[[Callable[_P, _T]], Callable[_P, _T]]
 newlines = ['\r\n', '\r', '\n', '\f']
 whitespace = ['\t', '\x20'] + newlines
 blank = [''] + whitespace
-
-
-def _make_a_n_plus_b(step_and_offset: tuple[int, int]) -> ANPlusB:
-	step, offset = step_and_offset
-	
-	return ANPlusB(step, offset)
 
 
 def join(whatever: Iterable[Any]) -> str:
@@ -49,8 +43,10 @@ def examples(
 	return inner
 
 
+@composite
 def a_n_plus_b_instances(
-	step: SearchStrategy[int] = integers(),
-	offset: SearchStrategy[int] = integers()
+	draw: DrawFn,
+	steps: SearchStrategy[int] = integers(),
+	offsets: SearchStrategy[int] = integers()
 ) -> SearchStrategy[ANPlusB]:
-	return tuples(step, offset).map(_make_a_n_plus_b)
+	return ANPlusB(draw(steps), draw(offsets))

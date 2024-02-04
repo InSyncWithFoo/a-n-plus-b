@@ -1,6 +1,6 @@
 import pytest
 from hypothesis import given, infer
-from hypothesis.strategies import from_type, integers, SearchStrategy, tuples
+from hypothesis.strategies import from_type, integers
 
 from a_n_plus_b import ANPlusB, IncorrectUseOfConstructor
 from . import a_n_plus_b_instances
@@ -11,16 +11,6 @@ _EqTestCase = tuple[ANPlusB, '_ANPlusBSubclass', bool]
 
 class _ANPlusBSubclass(ANPlusB):
 	pass
-
-
-def _make_eq_test_case(example: tuple[int, int]) -> _EqTestCase:
-	step, offset = example
-	
-	return ANPlusB(step, offset), _ANPlusBSubclass(step, offset), True
-
-
-def _eq_test_group() -> SearchStrategy[_EqTestCase]:
-	return tuples(integers(), integers()).map(_make_eq_test_case)
 
 
 @given(integers(), integers())
@@ -112,9 +102,18 @@ def test_eq(this):
 
 
 @pytest.mark.parametrize(('this', 'that', 'expected'), [
+	(ANPlusB(-2, -3), ANPlusB(-2, -3), True),
+	(ANPlusB(-1, 0), ANPlusB(-1, 0), True),
+	(ANPlusB(0, -5), ANPlusB(0, -5), True),
+	(_ANPlusBSubclass(-4, -3), _ANPlusBSubclass(-4, -3), True),
+	(_ANPlusBSubclass(-1, -2), _ANPlusBSubclass(-1, -2), True),
+	(_ANPlusBSubclass(0, 0), _ANPlusBSubclass(0, 0), True),
 	(ANPlusB(0, 0), _ANPlusBSubclass(0, 0), True),
 	(_ANPlusBSubclass(0, 0), ANPlusB(0, 0), True),
-
+	(ANPlusB(3, 4), ANPlusB(4, 3), False),
+	(_ANPlusBSubclass(3, 4), _ANPlusBSubclass(4, 3), False),
+	(ANPlusB(-2, -3), ANPlusB(-4, -5), False),
+	(_ANPlusBSubclass(-1, -2), _ANPlusBSubclass(-3, -4), False),
 ])
 def test_eq_subclass(this, that, expected):
 	assert (this == that) is expected
