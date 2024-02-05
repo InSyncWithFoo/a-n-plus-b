@@ -13,7 +13,7 @@
 				"eamodio.gitlens",
 				"EditorConfig.EditorConfig",
 				"formulahendry.code-runner",
-				"ms-python.mypy-type-checker",
+				"ms-python.mypy-type-checker@prerelease",
 				"ms-python.python",
 				"tamasfe.even-better-toml",
 				"usernamehw.errorlens"

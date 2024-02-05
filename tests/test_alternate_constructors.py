@@ -19,7 +19,7 @@ _E = TypeVar('_E')
 _T = TypeVar('_T')
 
 
-def _make_complex(example: tuple[int | float, int | float]) -> complex:
+def _make_complex(example: tuple[float, float]) -> complex:
 	return complex(*example)
 
 
@@ -89,23 +89,26 @@ def _digits() -> SearchStrategy[int]:
 
 
 @composite
-def _integers_with_potentially_superfluous_sign(draw: DrawFn) -> str:
+def _integers_with_potentially_superfluous_sign(
+	draw: DrawFn,
+	max_size: int = 10
+) -> str:
 	sign = draw(_signs())
-	digits = draw(lists(_digits(), min_size = 1, max_size = 10).map(join))
+	digits = draw(lists(_digits(), min_size = 1, max_size = max_size).map(join))
 	
 	return draw(with_surrounding_whitespace(sign + digits))
 
 
 @composite
-def _a_values(draw: DrawFn) -> str:
+def _a_values(draw: DrawFn, max_size: int = 10) -> str:
 	sign = draw(_signs())
-	digits = draw(lists(_digits(), max_size = 10).map(join))
+	digits = draw(lists(_digits(), max_size = max_size).map(join))
 	
 	return sign + digits
 
 
-def _b_values() -> SearchStrategy[str]:
-	return lists(_digits(), min_size = 1, max_size = 10).map(join)
+def _b_values(max_size: int = 10) -> SearchStrategy[str]:
+	return lists(_digits(), min_size = 1, max_size = max_size).map(join)
 
 
 class ParseANPlusBTestCases:

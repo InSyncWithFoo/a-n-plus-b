@@ -31,31 +31,27 @@ def _from_last(indices: Iterable[int], population: int) -> Iterable[int]:
 
 
 def _sign(value: int, /) -> Literal['negative', 'positive', 'zero']:
-	return 'negative' if value < 0 else 'positive' if value > 0 else 'zero'
+	if value < 0:
+		return 'negative'
+	
+	if value > 0:
+		return 'positive'
+	
+	return 'zero'
 
 
 def _describe(test_case: _TestCase) -> str:
-	instance, (population, from_last, order), _ = test_case
+	instance, (_population, from_last, order), _expected = test_case
 	step, offset = instance.step, instance.offset
 	
 	descriptions = [
 		f'{_sign(step)} step',
 		f'{_sign(offset)} offset',
-		f'from last' if from_last else 'from first',
-		f'{order}'
+		'from last' if from_last else 'from first',
+		order
 	]
 	
 	return ', '.join(descriptions)
-
-
-def _human_integers(
-	min_value: int = -(2 ** 16),
-	max_value: int = 2 ** 16,
-) -> SearchStrategy[int]:
-	return integers(
-		min_value = max(-(2 ** 16), min_value),
-		max_value = min(2 ** 16, max_value)
-	)
 
 
 def _orders() -> SearchStrategy[_Order]:
@@ -66,7 +62,7 @@ def _orders() -> SearchStrategy[_Order]:
 
 
 def _non_positive_step_and_offset_test_cases() -> SearchStrategy[_TestCase]:
-	return tuples(
+	strategy = tuples(
 		a_n_plus_b_instances(
 			integers(max_value = 0),
 			integers(max_value = 0)
@@ -74,6 +70,8 @@ def _non_positive_step_and_offset_test_cases() -> SearchStrategy[_TestCase]:
 		tuples(integers(min_value = 0), booleans(), _orders()),
 		just(list[int]())
 	)
+	
+	return cast(SearchStrategy[_TestCase], strategy)
 
 
 @composite
@@ -106,7 +104,7 @@ def _test_case_group(
 	population: int,
 	base_case_expected: Iterable[int]
 ) -> list[ParameterSet]:
-	test_cases = []
+	test_cases: list[ParameterSet] = []
 	from_last_and_order_matrix = product(
 		[False, True],
 		['default', 'ascending', 'descending']
@@ -125,7 +123,10 @@ def _test_case_group(
 		
 		test_case = (instance, (population, from_last, order), expected)
 		test_cases.append(
-			pytest.param(test_case, id = _describe(test_case))
+			pytest.param(
+				test_case,
+				id = _describe(cast(_TestCase, test_case))
+			)
 		)
 	
 	return test_cases

@@ -48,5 +48,5 @@ def a_n_plus_b_instances(
 	draw: DrawFn,
 	steps: SearchStrategy[int] = integers(),
 	offsets: SearchStrategy[int] = integers()
-) -> SearchStrategy[ANPlusB]:
+) -> ANPlusB:
 	return ANPlusB(draw(steps), draw(offsets))
