@@ -212,9 +212,9 @@ class _InfiniteRange:
 		if self._step == 0:
 			return item == self._start
 		
-		n = (item - self._start) / self._step
+		quotient, remainder = divmod(item - self._start, self._step)
 		
-		return n >= 0 and n.is_integer()
+		return quotient >= 0 and remainder == 0
 
 
 class ANPlusB:
