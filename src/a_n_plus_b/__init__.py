@@ -184,7 +184,7 @@ class _InfiniteRange:
 		return f'{self.__class__.__name__}({start = }, {step = })'
 	
 	def __iter__(self) -> Iterator[int]:
-		yield from count(self._start, self._step)
+		return count(self._start, self._step)
 	
 	def __getitem__(self, item: int) -> int:
 		'''
