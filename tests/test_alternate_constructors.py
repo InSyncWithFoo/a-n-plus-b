@@ -19,7 +19,7 @@ _E = TypeVar('_E')
 _T = TypeVar('_T')
 
 
-def _make_complex(example: tuple[float, float]) -> complex:
+def _make_complex(example: tuple[int | float, int | float]) -> complex:
 	return complex(*example)
 
 
