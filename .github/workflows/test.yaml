@@ -2,17 +2,7 @@ name: Test
 
 on:
   pull_request:
-    paths:
-      - src/**
-      - tests/**
-      - .github/workflows/*.yaml
-      - tox.ini
   push:
-    paths:
-      - src/**
-      - tests/**
-      - .github/workflows/*.yaml
-      - tox.ini
 
 jobs:
   test:
