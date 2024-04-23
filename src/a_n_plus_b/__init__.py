@@ -8,7 +8,7 @@ from collections.abc import Iterator
 from itertools import count
 from typing import Any, Literal, overload
 
-from a_n_plus_b._grammar import a_n_plus_b, integer, Regex, whitespace
+from ._grammar import a_n_plus_b, integer, Regex, whitespace
 
 
 if sys.version_info >= (3, 11):
