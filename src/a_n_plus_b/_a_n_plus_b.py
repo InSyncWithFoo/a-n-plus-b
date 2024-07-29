@@ -278,33 +278,61 @@ class ANPlusB:
 	def __repr__(self) -> str:
 		return f'{self.__class__.__name__}({self})'
 	
+	def __pos__(self) -> Self:
+		'''
+		``+(an + b)`` is equivalent to ``an + b``. 
+		'''
+		
+		return self
+	
+	def __neg__(self) -> Self:
+		'''
+		``-(an + b)`` is equivalent to ``-an - b``.
+		'''
+		
+		return self.__class__(-self._step, -self._offset)
+	
 	def __add__(self, other: int) -> Self:
 		'''
-		``ANPlusB(a, b) + n`` is equivalent to ``ANPlusB(a, b + n)``. 
+		``(an + b) + c`` is equivalent to ``an + (b + c)``. 
 		'''
 		
 		return self.__class__(self._step, self._offset + other)
 	
 	def __radd__(self, other: int) -> Self:
 		'''
-		``n + ANPlusB(a, b)`` is equivalent to ``ANPlusB(a, b + n)``. 
+		``c + (an + b)`` is equivalent to ``an + (b + c)``. 
 		'''
 		
 		return self + other
 	
 	def __sub__(self, other: int) -> Self:
 		'''
-		``ANPlusB(a, b) - n`` is equivalent to ``ANPlusB(a, b - n)``. 
+		``(an + b) - c`` is equivalent to ``an + (b - c)``. 
 		'''
 		
 		return self + -other
 	
+	def __rsub__(self, other: int) -> Self:
+		'''
+		``c - (an + b)`` is equivalent to ``-an + (c - b)``. 
+		'''
+		
+		return -self + other
+	
 	def __mul__(self, other: int) -> Self:
 		'''
-		``ANPlusB(a, b) * n`` is equivalent to ``ANPlusB(a * n, b * n)``.
+		``(an + b) * c`` is equivalent to ``(ac) * n + (bc)``.
 		'''
 		
 		return self.__class__(self._step * other, self._offset * other)
+	
+	def __rmul__(self, other: int) -> Self:
+		'''
+		``c * (an + b)`` is equivalent to ``(ac) * n + (bc)``. 
+		'''
+		
+		return self * other
 	
 	def __eq__(self, other: object) -> bool:
 		'''

@@ -1,7 +1,7 @@
 # ANPlusB
 
-This tiny package provides a handy parser
-for parsing the CSS `<An+B>` microsyntax.
+This tiny package provides a toolkit for
+working with the `<An+B>` CSS microsyntax.
 
 
 ## Installation
@@ -77,6 +77,16 @@ ANPlusB(124)
 ```pycon
 >>> ANPlusB.from_complex(5j - 2)
 ANPlusB(5n-2)
+```
+
+```pycon
+>>> from a_n_plus_b import n
+>>> 2 * n
+ANPlusB(2n)
+>>> n * -3 - 1
+ANPlusB(-3n-1)
+>>> 4 - n * 9
+ANPlusB(-9n+4)
 ```
 
 
