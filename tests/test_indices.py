@@ -153,7 +153,7 @@ def _test_case_group(
 	*_test_case_group(ANPlusB(3, 1), 10, [1, 4, 7, 10]),
 	*_test_case_group(ANPlusB(1, 4), 11, [4, 5, 6, 7, 8, 9, 10, 11])
 ])
-def test_indices(instance_arguments_expected: _TestCase):
+def test_indices(instance_arguments_expected: _TestCase) -> None:
 	instance, arguments, expected = instance_arguments_expected
 	population, from_last, order = arguments
 	
@@ -166,7 +166,12 @@ def test_indices(instance_arguments_expected: _TestCase):
 	a_n_plus_b_instances(),
 	integers(), booleans(), from_type(str)
 )
-def test_indices_invalid_order(instance, population, from_last, order):
+def test_indices_invalid_order(
+	instance: ANPlusB,
+	population: int,
+	from_last: bool,
+	order: str
+) -> None:
 	assume(order not in ('ascending', 'descending', 'default'))
 	
 	with pytest.raises(InvalidOrder):
@@ -178,7 +183,10 @@ def test_indices_invalid_order(instance, population, from_last, order):
 	integers(max_value = -1), booleans(), _orders()
 )
 def test_indices_invalid_number_of_children(
-	instance, population, from_last, order
-):
+	instance: ANPlusB,
+	population: int,
+	from_last: bool,
+	order: _Order
+) -> None:
 	with pytest.raises(InvalidNumberOfChildren):
 		instance.indices(population, from_last = from_last, order = order)

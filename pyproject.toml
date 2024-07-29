@@ -1,6 +1,6 @@
 [project]
 name = "a-n-plus-b"
-version = "0.1.0"
+version = "0.2.0"
 description = "CSS <An+B> microsyntax parser"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -73,8 +73,8 @@ pythonPlatform = "All"
 typeCheckingMode = "strict"
 
 [tool.ruff]
-include = ["src/**"]
-exclude = ["tests/**"]
+include = ["src/**.py"]
+exclude = ["tests/**.py"]
 line-length = 80
 target-version = "py310"
 
@@ -83,6 +83,8 @@ select = ["ALL"]
 ignore = [
 	"ANN101",    # missing-type-self
 	"ANN102",    # missing-type-cls
+	
+	"COM812",    # missing-trailing-comma
 	
 	"D200",      # fits-on-one-line
 	"D202",      # no-blank-line-after-function

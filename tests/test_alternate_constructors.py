@@ -181,7 +181,7 @@ class ParseANPlusBTestCases:
 		_variations('even').map(_tupled_with((2, 0)))
 	])
 )
-def test_parse_odd_even(text_and_expected):
+def test_parse_odd_even(text_and_expected: tuple[str, tuple[int, int]]) -> None:
 	text, expected = text_and_expected
 	instance = ANPlusB.parse(text)
 	
@@ -189,7 +189,7 @@ def test_parse_odd_even(text_and_expected):
 
 
 @given(_integers_with_potentially_superfluous_sign())
-def test_parse_integer(text):
+def test_parse_integer(text: str) -> None:
 	expected = int(text)
 	
 	instance = ANPlusB.parse(text)
@@ -199,50 +199,52 @@ def test_parse_integer(text):
 
 
 @given(whitespace_sequences_or_empty())
-def test_parse_empty(text):
+def test_parse_empty(text: str) -> None:
 	with pytest.raises(EmptyInput):
 		ANPlusB.parse(text)
 
 
 @given(ParseANPlusBTestCases.valid())
 @examples([
-	(['+3n+2', (3, 2)]),
-	(['+4n+0', (4, 0)]),
-	(['+6n', (6, 0)]),
-	(['+5n-0', (5, 0)]),
-	(['+7n-1', (7, -1)]),
+	tuple([('+3n+2', (3, 2))]),
+	tuple([('+4n+0', (4, 0))]),
+	tuple([('+6n', (6, 0))]),
+	tuple([('+5n-0', (5, 0))]),
+	tuple([('+7n-1', (7, -1))]),
 	
-	(['3n+2', (3, 2)]),
-	(['4n+0', (4, 0)]),
-	(['6n', (6, 0)]),
-	(['5n-0', (5, 0)]),
-	(['7n-1', (7, -1)]),
+	tuple([('3n+2', (3, 2))]),
+	tuple([('4n+0', (4, 0))]),
+	tuple([('6n', (6, 0))]),
+	tuple([('5n-0', (5, 0))]),
+	tuple([('7n-1', (7, -1))]),
 	
-	(['+0n+2', (0, 2)]),
-	(['+0n+0', (0, 0)]),
-	(['+0n', (0, 0)]),
-	(['+0n-0', (0, 0)]),
-	(['+0n-1', (0, -1)]),
+	tuple([('+0n+2', (0, 2))]),
+	tuple([('+0n+0', (0, 0))]),
+	tuple([('+0n', (0, 0))]),
+	tuple([('+0n-0', (0, 0))]),
+	tuple([('+0n-1', (0, -1))]),
 	
-	(['0n+2', (0, 2)]),
-	(['0n+0', (0, 0)]),
-	(['0n', (0, 0)]),
-	(['0n-0', (0, 0)]),
-	(['0n-1', (0, -1)]),
+	tuple([('0n+2', (0, 2))]),
+	tuple([('0n+0', (0, 0))]),
+	tuple([('0n', (0, 0))]),
+	tuple([('0n-0', (0, 0))]),
+	tuple([('0n-1', (0, -1))]),
 	
-	(['-0n+2', (0, 2)]),
-	(['-0n+0', (0, 0)]),
-	(['-0n', (0, 0)]),
-	(['-0n-0', (0, 0)]),
-	(['-0n-1', (0, -1)]),
+	tuple([('-0n+2', (0, 2))]),
+	tuple([('-0n+0', (0, 0))]),
+	tuple([('-0n', (0, 0))]),
+	tuple([('-0n-0', (0, 0))]),
+	tuple([('-0n-1', (0, -1))]),
 	
-	(['-3n+2', (-3, 2)]),
-	(['-4n+0', (-4, 0)]),
-	(['-6n', (-6, 0)]),
-	(['-5n-0', (-5, 0)]),
-	(['-7n-1', (-7, -1)]),
+	tuple([('-3n+2', (-3, 2))]),
+	tuple([('-4n+0', (-4, 0))]),
+	tuple([('-6n', (-6, 0))]),
+	tuple([('-5n-0', (-5, 0))]),
+	tuple([('-7n-1', (-7, -1))])
 ])
-def test_parse_a_n_plus_b(text_and_expected):
+def test_parse_a_n_plus_b(
+	text_and_expected: tuple[str, tuple[int, int]]
+) -> None:
 	text, expected = text_and_expected
 	instance = ANPlusB.parse(text)
 	
@@ -256,7 +258,7 @@ def test_parse_a_n_plus_b(text_and_expected):
 		ParseANPlusBTestCases.missing_operator()
 	])
 )
-def test_parse_invalid(text):
+def test_parse_invalid(text: str) -> None:
 	with pytest.raises(InputIsNotParsable):
 		ANPlusB.parse(text)
 
@@ -268,7 +270,7 @@ def test_parse_invalid(text):
 		integers().map(float)
 	])
 )
-def test_from_complex(value):
+def test_from_complex(value: int | float | complex) -> None:
 	instance = ANPlusB.from_complex(value)
 	expected = (int(value.imag), int(value.real))
 	
@@ -283,6 +285,6 @@ def test_from_complex(value):
 	]) \
 		.map(_make_complex)
 )
-def test_from_complex_invalid(value):
+def test_from_complex_invalid(value: complex) -> None:
 	with pytest.raises(ComplexWithNonIntegerPart):
 		ANPlusB.from_complex(value)

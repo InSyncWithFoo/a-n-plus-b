@@ -14,7 +14,7 @@ class _ANPlusBSubclass(ANPlusB):
 
 
 @given(integers(), integers())
-def test_construction(step, offset):
+def test_construction(step: int, offset: int) -> None:
 	instance = ANPlusB(step, offset)
 	
 	assert instance.step == step
@@ -22,7 +22,7 @@ def test_construction(step, offset):
 
 
 @given(integers())
-def test_construction_single_argument(offset):
+def test_construction_single_argument(offset: int) -> None:
 	instance = ANPlusB(offset)
 	
 	assert instance.step == 0
@@ -30,9 +30,9 @@ def test_construction_single_argument(offset):
 
 
 @given(infer)
-def test_construction_invalid(text: str):
+def test_construction_invalid(text: str) -> None:
 	with pytest.raises(IncorrectUseOfConstructor):
-		ANPlusB(text)  # noqa
+		ANPlusB(text)  # type: ignore  # noqa
 
 
 @pytest.mark.parametrize(('instance', 'expected'), [
@@ -56,13 +56,13 @@ def test_construction_invalid(text: str):
 	(ANPlusB(-4, 0), '-4n'),
 	(ANPlusB(-4, -6), '-4n-6')
 ])
-def test_str(instance, expected):
+def test_str(instance: ANPlusB, expected: str) -> None:
 	assert str(instance) == expected
 	assert repr(instance) == f'{ANPlusB.__name__}({expected})'
 
 
 @given(a_n_plus_b_instances())
-def test_values(instance):
+def test_values(instance: ANPlusB) -> None:
 	a, b = instance.step, instance.offset
 	
 	for index, value in zip(range(10), instance.values()):
@@ -70,7 +70,7 @@ def test_values(instance):
 
 
 @given(a_n_plus_b_instances(), integers(min_value = 0))
-def test_values_contain_getitem(instance, index):
+def test_values_contain_getitem(instance: ANPlusB, index: int) -> None:
 	a, b = instance.step, instance.offset
 	value = instance.values()[index]
 	
@@ -82,18 +82,18 @@ def test_values_contain_getitem(instance, index):
 	a_n_plus_b_instances(),
 	from_type(object).filter(lambda o: not isinstance(o, int))
 )
-def test_values_not_contain(instance, item):
+def test_values_not_contain(instance: ANPlusB, item: object) -> None:
 	assert item not in instance.values()
 
 
 @given(a_n_plus_b_instances(), integers(max_value = -1))
-def test_getitem_invalid(instance, index):
+def test_getitem_invalid(instance: ANPlusB, index: int) -> None:
 	with pytest.raises(IndexError):
 		_ = instance.values()[index]
 
 
 @given(a_n_plus_b_instances())
-def test_eq(this):
+def test_eq(this: ANPlusB) -> None:
 	a, b = this.step, this.offset
 	that = ANPlusB(a, b)
 	
@@ -115,5 +115,5 @@ def test_eq(this):
 	(ANPlusB(-2, -3), ANPlusB(-4, -5), False),
 	(_ANPlusBSubclass(-1, -2), _ANPlusBSubclass(-3, -4), False),
 ])
-def test_eq_subclass(this, that, expected):
+def test_eq_subclass(this: ANPlusB, that: ANPlusB, expected: bool) -> None:
 	assert (this == that) is expected
