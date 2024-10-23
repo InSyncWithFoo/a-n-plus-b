@@ -56,10 +56,10 @@ testpaths = ["tests"]
 
 [tool.coverage.report]
 exclude_lines = [
-	"^([^\\S\n]+)@(?:overload|abstractmethod)",
-	"if TYPE_CHECKING:",
-	"if sys\\.version",
-	"def __repr__"
+	'^([^\S\n]+)@(?:overload|abstractmethod)',
+	'if TYPE_CHECKING:',
+	'if sys\.version',
+	'def __repr__'
 ]
 
 [tool.mypy]
