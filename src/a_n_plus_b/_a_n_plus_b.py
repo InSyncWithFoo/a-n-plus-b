@@ -479,7 +479,7 @@ class ANPlusB:
 	@classmethod
 	def parse(cls, text: str, /) -> Self:
 		'''
-		Parse the given text and returns an ``ANPlusB`` instance.
+		Parse the given text and return an ``ANPlusB`` instance.
 		
 		Surrounding whitespace (spaces, tabs, carriage returns,
 		newlines, form feeds) are tolerated.
