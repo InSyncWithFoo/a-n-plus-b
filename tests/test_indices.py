@@ -14,8 +14,8 @@ from a_n_plus_b import ANPlusB, InvalidNumberOfChildren, InvalidOrder
 from . import a_n_plus_b_instances, examples
 
 
-_Order = Literal['ascending', 'descending', 'default']
-_TestCase = tuple[ANPlusB, tuple[int, bool, _Order], Iterable[int]]
+type _Order = Literal['ascending', 'descending', 'default']
+type _TestCase = tuple[ANPlusB, tuple[int, bool, _Order], Iterable[int]]
 
 
 def _ascending(values: Iterable[int]) -> Iterable[int]:
@@ -56,7 +56,7 @@ def _describe(test_case: _TestCase) -> str:
 
 def _orders() -> SearchStrategy[_Order]:
 	return cast(
-		SearchStrategy[_Order],
+		'SearchStrategy[_Order]',
 		sampled_from(['ascending', 'descending', 'default'])
 	)
 
@@ -71,7 +71,7 @@ def _non_positive_step_and_offset_test_cases() -> SearchStrategy[_TestCase]:
 		just(list[int]())
 	)
 	
-	return cast(SearchStrategy[_TestCase], strategy)
+	return cast('SearchStrategy[_TestCase]', strategy)
 
 
 @composite

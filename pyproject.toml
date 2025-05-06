@@ -3,7 +3,7 @@ name = "a-n-plus-b"
 version = "0.2.0"
 description = "CSS <An+B> microsyntax parser"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 license = { text = "MIT" }
 keywords = ["CSS", "parser", "an+b"]
 authors = [
@@ -79,9 +79,6 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-	"ANN101",    # missing-type-self
-	"ANN102",    # missing-type-cls
-	
 	"COM812",    # missing-trailing-comma
 	
 	"D200",      # fits-on-one-line

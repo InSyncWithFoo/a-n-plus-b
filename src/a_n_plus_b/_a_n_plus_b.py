@@ -3,18 +3,11 @@ The main feature of the package: :class:`ANPlusB`.
 '''
 
 import math
-import sys
 from collections.abc import Iterator
 from itertools import count
-from typing import Any, Literal, overload
+from typing import Any, Literal, Self, overload
 
 from ._grammar import a_n_plus_b, integer, Regex, whitespace
-
-
-if sys.version_info >= (3, 11):
-	from typing import Self
-else:
-	from typing_extensions import Self
 
 _surrounding_whitespace = Regex(fr'\A{whitespace}+|{whitespace}+\Z')
 
@@ -212,7 +205,7 @@ class ANPlusB:
 	<https://drafts.csswg.org/css-syntax-3/#anb-microsyntax>`_.
 	'''
 	
-	__slots__ = ('_step', '_offset')
+	__slots__ = ('_step', '_offset')  # noqa: RUF023
 	
 	_step: int
 	_offset: int

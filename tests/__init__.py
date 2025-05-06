@@ -1,5 +1,5 @@
 from collections.abc import Callable, Iterable
-from typing import Any, ParamSpec, TypeVar
+from typing import Any
 
 from _pytest.mark import ParameterSet
 from hypothesis import example
@@ -8,14 +8,11 @@ from hypothesis.strategies import composite, DrawFn, integers, SearchStrategy
 from a_n_plus_b import ANPlusB
 
 
-_T = TypeVar('_T')
-_P = ParamSpec('_P')
-
-_Decorator = Callable[[Callable[_P, _T]], Callable[_P, _T]]
+type _Decorator[**P, T] = Callable[[Callable[P, T]], Callable[P, T]]
 
 newlines = ['\r\n', '\r', '\n', '\f']
-whitespace = ['\t', '\x20'] + newlines
-blank = [''] + whitespace
+whitespace = ['\t', ' ', *newlines]
+blank = ['', *whitespace]
 
 
 def join(whatever: Iterable[Any]) -> str:
@@ -23,12 +20,12 @@ def join(whatever: Iterable[Any]) -> str:
 
 
 # Originally from https://stackoverflow.com/a/70312417
-def examples(
+def examples[**P, T](
 	parameter_sets: Iterable[ParameterSet | tuple[Any, ...] | Any]
-) -> _Decorator[_P, _T]:
+) -> _Decorator[P, T]:
 	parameter_sets = list(parameter_sets)
 	
-	def inner(test_case: Callable[_P, _T]) -> Callable[_P, _T]:
+	def inner(test_case: Callable[P, T]) -> Callable[P, T]:
 		for parameter_set in reversed(parameter_sets):
 			if isinstance(parameter_set, ParameterSet):
 				parameter_set = parameter_set.values

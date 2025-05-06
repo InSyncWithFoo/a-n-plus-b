@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any
 
 import pytest
 from hypothesis import given
@@ -13,10 +13,6 @@ from a_n_plus_b import (
 	EmptyInput, InputIsNotParsable
 )
 from . import examples, join, whitespace
-
-
-_E = TypeVar('_E')
-_T = TypeVar('_T')
 
 
 def _make_complex(example: tuple[int | float, int | float]) -> complex:
@@ -45,8 +41,8 @@ def _variations(draw: DrawFn, text: str) -> str:
 	return draw(with_surrounding_whitespace(scrambled_text))
 
 
-def _tupled_with(value: _T) -> Callable[[_E], tuple[_E, _T]]:
-	def tupled_with_given_value(example: _E) -> tuple[_E, _T]:
+def _tupled_with[E, T](value: T) -> Callable[[E], tuple[E, T]]:
+	def tupled_with_given_value(example: E) -> tuple[E, T]:
 		return example, value
 	
 	return tupled_with_given_value

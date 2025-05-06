@@ -1,8 +1,4 @@
 import re
-from typing import TypeVar
-
-
-T = TypeVar('T')
 
 
 class Regex:
@@ -10,7 +6,7 @@ class Regex:
 	Proxy class for ergonomic syntax.
 	'''
 	
-	__slots__ = ('_raw_pattern', '_compiled')
+	__slots__ = ('_raw_pattern', '_compiled')  # noqa: RUF023
 	
 	_raw_pattern: str
 	_compiled: re.Pattern[str]

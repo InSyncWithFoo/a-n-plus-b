@@ -6,9 +6,6 @@ from a_n_plus_b import ANPlusB, IncorrectUseOfConstructor
 from . import a_n_plus_b_instances
 
 
-_EqTestCase = tuple[ANPlusB, '_ANPlusBSubclass', bool]
-
-
 class _ANPlusBSubclass(ANPlusB):
 	pass
 

@@ -15,7 +15,7 @@ from ._a_n_plus_b import (
 from ._n import n
 
 
-__all__ = [
+__all__ = [  # noqa: RUF022
 	'ANPlusB', 'n',
 	'ComplexWithNonIntegerPart',
 	'EmptyInput',
