@@ -26,7 +26,7 @@ dependencies = []
 [project.optional-dependencies]
 dev = [
 	"hatch>=1.9.3,<1.15.0",
-	"hypothesis>=6.105.0,<6.133",
+	"hypothesis>=6.105.0,<6.134",
 	"mypy>=1.8,<1.17",
 	"pyright~=1.1.347",
 	"pytest>=8.0,<8.5",
