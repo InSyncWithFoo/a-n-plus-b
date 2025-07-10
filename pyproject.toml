@@ -23,21 +23,19 @@ classifiers = [
 
 dependencies = []
 
-[project.optional-dependencies]
+[project.urls]
+"Homepage" = "https://github.com/InSyncWithFoo/a-n-plus-b"
+
+[dependency-groups]
 dev = [
-	"hatch>=1.9.3,<1.15.0",
 	"hypothesis>=6.105.0,<6.136",
 	"mypy>=1.8,<1.17",
 	"pyright~=1.1.347",
 	"pytest>=8.0,<8.5",
 	"pytest-cov>=4.1,<6.3",
 	"ruff>=0.5.0,<0.13",
-	"tox>=4.16.0,<4.28.0",
 	"tzdata>=2023.4,<2026.0"
 ]
-
-[project.urls]
-"Homepage" = "https://github.com/InSyncWithFoo/a-n-plus-b"
 
 [build-system]
 requires = ["hatchling"]
@@ -72,7 +70,6 @@ typeCheckingMode = "strict"
 include = ["src/**.py"]
 exclude = ["tests/**.py"]
 line-length = 80
-target-version = "py311"
 
 [tool.ruff.lint]
 select = ["ALL"]
