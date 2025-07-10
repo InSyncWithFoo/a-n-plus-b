@@ -2,6 +2,7 @@
 Toolkit for working with the An+B CSS microsyntax.
 '''
 
+from typing import Final
 from ._a_n_plus_b import (
 	ANPlusB,
 	ComplexWithNonIntegerPart,
@@ -12,7 +13,6 @@ from ._a_n_plus_b import (
 	InvalidOrder,
 	ParseError
 )
-from ._n import n
 
 
 __all__ = [  # noqa: RUF022
@@ -25,3 +25,9 @@ __all__ = [  # noqa: RUF022
 	'InvalidOrder',
 	'ParseError'
 ]
+
+
+n: Final = ANPlusB(1, 0)
+'''
+Helper object for creating :class:`ANPlusB` instances.
+'''
