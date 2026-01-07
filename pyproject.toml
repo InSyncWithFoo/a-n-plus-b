@@ -28,7 +28,7 @@ dependencies = []
 
 [dependency-groups]
 dev = [
-	"hypothesis>=6.105.0,<6.150",
+	"hypothesis>=6.105.0,<6.151",
 	"mypy>=1.8,<1.20",
 	"pyright~=1.1.347",
 	"pytest>=8.0,<9.1",
