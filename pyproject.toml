@@ -34,7 +34,7 @@ dev = [
 	"pytest>=8.0,<9.1",
 	"pytest-cov>=4.1,<7.2",
 	"ruff>=0.5.0,<0.16",
-	"tzdata>=2023.4,<2026.0"
+	"tzdata>=2023.4,<2027.0"
 ]
 
 [build-system]
